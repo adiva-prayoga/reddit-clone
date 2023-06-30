@@ -70,5 +70,18 @@
   "devDependencies": {
     "@types/editorjs__header": "^2.6.0",
     "@types/lodash.debounce": "^4.0.7"
-  }
+  },
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/Adivaprayoga/redeeznut.git"
+  },
+  "author": "Adivaprayoga <prayoga.adiva@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Adivaprayoga/redeeznut/issues"
+  },
+  "homepage": "https://github.com/Adivaprayoga/redeeznut#readme",
+  "keywords": [],
+  "description": ""
 }
