@@ -18,7 +18,6 @@ interface UserAccountNavProps {
 }
 
 const UserAccountNav: FC<UserAccountNavProps> = ({ user }) => {
-  console.log(user.image);
   return (
     <DropdownMenu>
       <DropdownMenuTrigger>
