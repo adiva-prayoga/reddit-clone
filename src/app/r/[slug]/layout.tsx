@@ -3,6 +3,7 @@ import React from "react";
 import { db } from "@/lib/db";
 import { notFound } from "next/navigation";
 import { format } from "date-fns";
+import SubscribeLeaveToggle from "@/components/SubscribeLeaveToggle";
 
 const Layout = async ({
   children,
@@ -84,7 +85,7 @@ const Layout = async ({
                 </dd>
               </div>
 
-              <div className="flex justify-beween gap-x-4 py-3">
+              <div className="flex justify-between gap-x-4 py-3">
                 <dt className="text-gray-500">Members</dt>
                 <dd className="text-gray-700">
                   <div className="text-gray-900">{memberCount}</div>
@@ -97,6 +98,14 @@ const Layout = async ({
                     You created this community
                   </p>
                 </div>
+              ) : null}
+
+              {subreddit.creatorId !== session?.user.id ? (
+                <SubscribeLeaveToggle
+                  isSubscribed={isSubcribed}
+                  subredditId={subreddit.id}
+                  subredditName={subreddit.name}
+                />
               ) : null}
             </dl>
           </div>
