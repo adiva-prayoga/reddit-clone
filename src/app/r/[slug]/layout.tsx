@@ -4,6 +4,8 @@ import { db } from "@/lib/db";
 import { notFound } from "next/navigation";
 import { format } from "date-fns";
 import SubscribeLeaveToggle from "@/components/SubscribeLeaveToggle";
+import { buttonVariants } from "@/components/ui/Button";
+import Link from "next/link";
 
 const Layout = async ({
   children,
@@ -107,6 +109,16 @@ const Layout = async ({
                   subredditName={subreddit.name}
                 />
               ) : null}
+
+              <Link
+                className={buttonVariants({
+                  variant: "outline",
+                  className: "w-full mb-6",
+                })}
+                href={`r/${slug}/submit`}
+              >
+                Create Post
+              </Link>
             </dl>
           </div>
         </div>
