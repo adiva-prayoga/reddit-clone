@@ -1,11 +1,12 @@
 "use client";
 
-import { FC, useCallback, useRef } from "react";
+import { FC, useCallback, useEffect, useRef, useState } from "react";
 import TextareaAutosize from "react-textarea-autosize";
 import { useForm } from "react-hook-form";
 import { PostCreationRequest, PostValidator } from "@/lib/validators/post";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type EditorJS from "@editorjs/editorjs";
+import { uploadFiles } from "@/lib/uploadthing";
 
 interface EditorProps {
   subredditId: string;
@@ -26,8 +27,15 @@ const Editor: FC<EditorProps> = ({ subredditId }) => {
   });
 
   const ref = useRef<EditorJS>();
+  const [isMounted, setIsMounted] = useState<boolean>(false);
 
-  const intializeEditor = useCallback(async () => {
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setIsMounted(true);
+    }
+  }, []);
+
+  const initializeEditor = useCallback(async () => {
     const EditorJS = (await import("@editorjs/editorjs")).default;
     const Header = (await import("@editorjs/header")).default;
     const Embed = (await import("@editorjs/embed")).default;
@@ -55,10 +63,50 @@ const Editor: FC<EditorProps> = ({ subredditId }) => {
               endpoint: "/api/link",
             },
           },
+          image: {
+            class: ImageTool,
+            config: {
+              uploader: {
+                async uploadByFile(file: File) {
+                  // upload to uploadthing
+                  const [res] = await uploadFiles([file], "imageUploader");
+
+                  return {
+                    success: 1,
+                    file: {
+                      url: res.fileUrl,
+                    },
+                  };
+                },
+              },
+            },
+          },
+
+          list: List,
+          code: Code,
+          inlineCode: InlineCode,
+          table: Table,
+          embed: Embed,
         },
       });
     }
   }, []);
+
+  useEffect(() => {
+    const init = async () => {
+      await initializeEditor();
+
+      setTimeout(() => {
+        // set focus to title
+      });
+    };
+
+    if (isMounted) {
+      init();
+
+      return () => {};
+    }
+  }, [isMounted, initializeEditor]);
 
   return (
     <div className="w-full p-4 bg-zinc-50 rounded-lg border border-zinc-200">
@@ -68,6 +116,8 @@ const Editor: FC<EditorProps> = ({ subredditId }) => {
             placeholder="Title"
             className="w-full resize-none appearance-none overflow-hidden bg-transparent text-5xl font-bold focus:outline-none"
           />
+
+          <div id="editor" className="min-h-[500px]" />
         </div>
       </form>
     </div>
