@@ -7,6 +7,7 @@ import { PostCreationRequest, PostValidator } from "@/lib/validators/post";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type EditorJS from "@editorjs/editorjs";
 import { uploadFiles } from "@/lib/uploadthing";
+import { toast } from "@/hooks/use-toast";
 
 interface EditorProps {
   subredditId: string;
@@ -28,12 +29,7 @@ const Editor: FC<EditorProps> = ({ subredditId }) => {
 
   const ref = useRef<EditorJS>();
   const [isMounted, setIsMounted] = useState<boolean>(false);
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      setIsMounted(true);
-    }
-  }, []);
+  const _titleRef = useRef<HTMLTextAreaElement>(null);
 
   const initializeEditor = useCallback(async () => {
     const EditorJS = (await import("@editorjs/editorjs")).default;
@@ -93,26 +89,60 @@ const Editor: FC<EditorProps> = ({ subredditId }) => {
   }, []);
 
   useEffect(() => {
+    if (typeof window !== "undefined") {
+      setIsMounted(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (Object.keys(errors).length) {
+      for (const [_key, value] of Object.entries(errors)) {
+        toast({
+          title: "Something went wrong",
+          description: (value as { message: string }).message,
+          variant: "destructive",
+        });
+      }
+    }
+  }, [errors]);
+
+  useEffect(() => {
     const init = async () => {
       await initializeEditor();
 
       setTimeout(() => {
-        // set focus to title
-      });
+        _titleRef.current?.focus();
+      }, 0);
     };
 
     if (isMounted) {
       init();
 
-      return () => {};
+      return () => {
+        ref.current?.destroy();
+        ref.current = undefined;
+      };
     }
   }, [isMounted, initializeEditor]);
 
+  const { ref: titleRef, ...rest } = register("title");
+
   return (
     <div className="w-full p-4 bg-zinc-50 rounded-lg border border-zinc-200">
-      <form id="subreddit-post-form" className="w-fit" onSubmit={() => {}}>
+      <form
+        id="subreddit-post-form"
+        className="w-fit"
+        onSubmit={handleSubmit((e) => {})}
+      >
         <div className="prose prose-stone dark:prose-invert">
           <TextareaAutosize
+            ref={(e) => {
+              titleRef(e);
+
+              // @ts-ignore
+              _titleRef.current = e;
+            }}
+            {...rest}
             placeholder="Title"
             className="w-full resize-none appearance-none overflow-hidden bg-transparent text-5xl font-bold focus:outline-none"
           />
